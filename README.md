@@ -1,6 +1,6 @@
-# Shmup – Godot 4.7 / C#
+# Shmup
 
-A horizontally scrolling shooter in the spirit of R-Type and Katakis.
+A horizontally scrolling shooter in the spirit of R-Type and Katakis, built with Godot 4.7 (.NET) and C#.
 All game logic lives in C#. `Main.tscn` is the only scene; everything else is created at runtime.
 
 ## Setup (Omarchy / Arch)
