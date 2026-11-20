@@ -46,7 +46,9 @@ Project → Project Settings → Input Map.
 | `Scripts/Bullet.cs` | Shot, beam (piercing, hits each enemy once), aimed enemy shots |
 | `Scripts/WaveSpawner.cs` | Random waves as a placeholder until real levels exist |
 | `Scripts/Graphics.cs` | Palette, loading the PNG sprites from `Sprites/`, frame-based explosions |
+| `Scripts/Audio.cs` | Loading the sounds from `Sounds/`, effects, charge hum, music loop |
 | `Scripts/Starfield.cs`, `Scripts/Hud.cs` | Parallax stars, HUD with a 3×5 pixel font |
+| `tools/gen_sounds.py` | Generates the files in `Sounds/`; run `python3 tools/gen_sounds.py` after a change (needs ffmpeg) |
 
 Technical notes:
 - Internal resolution 320×180, integer scaling, nearest filtering, pixel snapping
