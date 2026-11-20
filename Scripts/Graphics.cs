@@ -23,6 +23,7 @@ public static class Sprites
     public static readonly Texture2D Shot = Load("shot");
     public static readonly Texture2D EnemyShot = Load("enemy_shot");
     public static readonly Texture2D[] Beam = { Load("beam1"), Load("beam2"), Load("beam3") };
+    public static readonly Texture2D Terrain = Load("terrain"); // 16 tiles, see Terrain.DrawColumn
     public static readonly SpriteFrames ExplosionSmall = Frames("explosion_small", 32);
     public static readonly SpriteFrames ExplosionLarge = Frames("explosion_large", 48);
 

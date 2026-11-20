@@ -16,6 +16,9 @@ public partial class Enemy : Node2D
 
     public Rect2 Rect => new(Position, _size);
 
+    /// <summary>Area the sprite covers on screen; larger than the hitbox.</summary>
+    public Rect2 SpriteRect => new(Position + Sprite.Position, Sprite.Texture.GetSize());
+
     private Vector2 _size;
 
     /// <summary>The hitbox keeps the given size, the sprite is drawn larger and centred on it.</summary>
@@ -40,7 +43,18 @@ public partial class Enemy : Node2D
         if (_flash > 0) _flash--;
         Sprite.Modulate = _flash > 0 ? new Color(3, 3, 3) : Colors.White;
         Move(game);
+        KeepInCave(game.Terrain);
         if (Position.X < -30) Dead = true;
+    }
+
+    /// <summary>Pushes the enemy back into the free space of the cave, every tick.</summary>
+    private void KeepInCave(Terrain terrain)
+    {
+        var rect = SpriteRect;
+        var (top, bottom) = terrain.FreeSpan(rect);
+        if (bottom - top < rect.Size.Y) return;
+        var y = Mathf.Clamp(rect.Position.Y, top, bottom - rect.Size.Y);
+        Position += new Vector2(0, y - rect.Position.Y);
     }
 
     protected virtual void Move(Main game) { }
