@@ -8,6 +8,8 @@ public partial class Enemy : Node2D
     public int Hp = 1;
     public int Points = 100;
     public bool DiesOnRam = true;
+    /// <summary>Stops every shot, the beam included, and takes no damage.</summary>
+    public bool Armored;
     public bool Dead;
 
     protected int Age;
@@ -32,6 +34,7 @@ public partial class Enemy : Node2D
 
     public void Hit(int damage)
     {
+        if (Armored) return;
         Hp -= damage;
         _flash = 4;
         if (Hp <= 0) Dead = true;
@@ -41,7 +44,7 @@ public partial class Enemy : Node2D
     {
         Age++;
         if (_flash > 0) _flash--;
-        Sprite.Modulate = _flash > 0 ? new Color(3, 3, 3) : Colors.White;
+        Sprite.Modulate = _flash > 0 ? new Color(3, 3, 3) : Tint;
         Move(game);
         KeepInCave(game.Terrain);
         if (Position.X < -30) Dead = true;
@@ -56,6 +59,9 @@ public partial class Enemy : Node2D
         var y = Mathf.Clamp(rect.Position.Y, top, bottom - rect.Size.Y);
         Position += new Vector2(0, y - rect.Position.Y);
     }
+
+    /// <summary>Colour of the sprite while it does not flash from a hit.</summary>
+    protected virtual Color Tint => Colors.White;
 
     protected virtual void Move(Main game) { }
 }

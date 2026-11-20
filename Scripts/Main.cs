@@ -19,6 +19,7 @@ public partial class Main : Node2D
     public Player Player { get; private set; } = null!;
     public Terrain Terrain { get; private set; } = null!;
     public Audio Audio { get; private set; } = null!;
+    public Boss? Boss { get; private set; }
     public int Score { get; private set; }
     public int HiScore { get; private set; }
     public int Lives { get; private set; }
@@ -58,6 +59,7 @@ public partial class Main : Node2D
         Lives = StartingLives;
         Score = 0;
         Tick = 0;
+        Boss = null;
         Terrain.Reset(RunSeed);
         _spawner.Reset();
         CurrentState = State.Play;
@@ -92,6 +94,9 @@ public partial class Main : Node2D
         Terrain.Step();
         Player.Step(this);
         _spawner.Step(this);
+        if (Terrain.InArena && Boss == null)
+            Boss = new Boss(this);
+        Boss?.Step(this);
         foreach (var e in _enemies) e.Step(this);
         foreach (var b in _bullets) b.Step();
         Collide();
@@ -130,6 +135,12 @@ public partial class Main : Node2D
             foreach (var e in _enemies)
             {
                 if (e.Dead || !b.Rect.Intersects(e.Rect)) continue;
+                // Armour stops every shot, the beam included.
+                if (e.Armored)
+                {
+                    b.Dead = true;
+                    break;
+                }
                 // A beam hits each enemy only once.
                 if (!b.AlreadyHit.Add(e.GetInstanceId())) continue;
 
@@ -199,7 +210,18 @@ public partial class Main : Node2D
             Audio.GameOver();
             return;
         }
-        Rewind();
+        if (Terrain.InArena)
+            RespawnInArena();
+        else
+            Rewind();
+    }
+
+    /// <summary>No rewind in the arena: the boss keeps its damage, only its shots vanish.</summary>
+    private void RespawnInArena()
+    {
+        foreach (var b in _bullets)
+            if (b.IsEnemy) b.Dead = true;
+        Player.Respawn();
     }
 
     /// <summary>Back to the start of the current section, which looks exactly as before.</summary>

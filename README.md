@@ -43,6 +43,7 @@ Project → Project Settings → Input Map.
 | `Scripts/Main.cs` | Game state, fixed 60 Hz tick, collisions, lives, score |
 | `Scripts/Player.cs` | Movement, shot and beam charging, engine and charge particles |
 | `Scripts/Enemies.cs` | `Enemy` base class plus `Drone`, `Chaser` and `Heavy` |
+| `Scripts/Boss.cs` | Boss in the arena at the end of a run: armoured hull, two turrets, a core that opens last |
 | `Scripts/Bullet.cs` | Shot, beam (piercing, hits each enemy once), aimed enemy shots |
 | `Scripts/WaveSpawner.cs` | Random waves as a placeholder until real levels exist |
 | `Scripts/Graphics.cs` | Palette, loading the PNG sprites from `Sprites/`, frame-based explosions |

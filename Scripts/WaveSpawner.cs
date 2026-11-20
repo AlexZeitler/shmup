@@ -24,6 +24,9 @@ public sealed class WaveSpawner
 
     public void Step(Main game)
     {
+        // The arena belongs to the boss; the last wave still flies out of the picture.
+        if (game.Terrain.SectionAt(SpawnX) >= Terrain.ArenaSection) return;
+
         var section = game.Terrain.SectionAt(0);
         if (section != _section)
         {
