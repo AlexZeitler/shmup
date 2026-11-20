@@ -9,6 +9,9 @@ public partial class Player : Node2D
     public const int ChargeMax = 90;
     public const int InvulnFrames = 120;
 
+    /// <summary>Movement bounds; the sprite is drawn larger and centred on this area.</summary>
+    public static readonly Vector2 Size = new(16, 8);
+
     private static readonly Vector2 SpawnPosition = new(30, Main.ScreenH / 2f - 4);
 
     public int Charge { get; private set; }
@@ -24,13 +27,14 @@ public partial class Player : Node2D
 
     public override void _Ready()
     {
-        _sprite = new Sprite2D { Texture = Sprites.Player, Centered = false };
+        _sprite = Sprites.Around(Sprites.Player, Size);
+        _sprite.ZIndex = 1; // own shots start inside the hull and emerge at the nose
         AddChild(_sprite);
 
         // Engine exhaust: emits in world space so it leaves a trail.
         AddChild(new CpuParticles2D
         {
-            Position = new Vector2(0, 4),
+            Position = new Vector2(-8, 4),
             Amount = 10,
             Lifetime = 0.15,
             LocalCoords = false,
@@ -45,7 +49,7 @@ public partial class Player : Node2D
         // Charge effect at the nose: particles are pulled inwards.
         _chargeFx = new CpuParticles2D
         {
-            Position = new Vector2(17, 4),
+            Position = new Vector2(23, 4),
             Emitting = false,
             Amount = 16,
             Lifetime = 0.25,
@@ -72,12 +76,11 @@ public partial class Player : Node2D
 
     public void Step(Main game)
     {
-        var size = _sprite.Texture.GetSize();
         var dir = Input.GetVector("move_left", "move_right", "move_up", "move_down");
         var p = Position + dir * Speed;
         Position = new Vector2(
-            Mathf.Clamp(p.X, 0, Main.ScreenW - size.X),
-            Mathf.Clamp(p.Y, 10, Main.ScreenH - 14 - size.Y));
+            Mathf.Clamp(p.X, 0, Main.ScreenW - Size.X),
+            Mathf.Clamp(p.Y, 10, Main.ScreenH - 14 - Size.Y));
 
         if (_invuln > 0) _invuln--;
         _sprite.Visible = _invuln == 0 || (_invuln / 4) % 2 == 0;

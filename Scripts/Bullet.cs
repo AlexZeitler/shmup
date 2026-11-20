@@ -13,6 +13,8 @@ public partial class Bullet : Node2D
     public bool Dead;
     public readonly HashSet<ulong> AlreadyHit = new();
 
+    private Texture2D _texture = null!;
+
     public Rect2 Rect => new(Position, Size);
 
     public static Bullet Shot(Vector2 at) => new()
@@ -20,6 +22,7 @@ public partial class Bullet : Node2D
         Position = at,
         Velocity = new Vector2(5, 0),
         Size = new Vector2(6, 2),
+        _texture = Sprites.Shot,
     };
 
     public static Bullet Beam(Vector2 nose, int level)
@@ -32,6 +35,7 @@ public partial class Bullet : Node2D
             Size = new Vector2(14 + level * 6, h),
             Damage = 2 * level,
             Pierce = true,
+            _texture = Sprites.Beam[level - 1],
         };
     }
 
@@ -41,6 +45,8 @@ public partial class Bullet : Node2D
         Velocity = (target - from).Normalized() * speed,
         Size = new Vector2(3, 3),
         IsEnemy = true,
+        ZIndex = 2, // above the ships, which are drawn above the player's own shots
+        _texture = Sprites.EnemyShot,
     };
 
     public void Step()
@@ -51,22 +57,5 @@ public partial class Bullet : Node2D
             Dead = true;
     }
 
-    public override void _Draw()
-    {
-        var r = new Rect2(Vector2.Zero, Size);
-        if (IsEnemy)
-        {
-            DrawRect(r, Palette.EnemyShot);
-            DrawRect(new Rect2(1, 1, 1, 1), Palette.White);
-        }
-        else if (Pierce)
-        {
-            DrawRect(r, Palette.Beam);
-            DrawRect(new Rect2(2, Size.Y / 2 - 1, Size.X - 2, 2), Palette.White);
-        }
-        else
-        {
-            DrawRect(r, Palette.Shot);
-        }
-    }
+    public override void _Ready() => AddChild(Sprites.Around(_texture, Size));
 }

@@ -8,6 +8,9 @@ namespace Shmup;
 /// </summary>
 public sealed class WaveSpawner
 {
+    // Enemy sprites reach a few pixels beyond their hitbox, so spawn them fully off-screen.
+    private const float SpawnX = Main.ScreenW + 8;
+
     private int _timer;
 
     public void Reset() => _timer = 60;
@@ -25,16 +28,16 @@ public sealed class WaveSpawner
         {
             var y = rng.RandfRange(30, Main.ScreenH - 50);
             for (var i = 0; i < 5; i++)
-                game.SpawnEnemy(Drone.Create(new Vector2(Main.ScreenW + i * 14, y), i * 0.6f));
+                game.SpawnEnemy(Drone.Create(new Vector2(SpawnX + i * 14, y), i * 0.6f));
         }
         else if (roll < 8)
         {
             for (var i = 0; i < 3; i++)
-                game.SpawnEnemy(Chaser.Create(new Vector2(Main.ScreenW + i * 30, rng.RandfRange(20, Main.ScreenH - 30))));
+                game.SpawnEnemy(Chaser.Create(new Vector2(SpawnX + i * 30, rng.RandfRange(20, Main.ScreenH - 30))));
         }
         else
         {
-            game.SpawnEnemy(Heavy.Create(new Vector2(Main.ScreenW, rng.RandfRange(30, Main.ScreenH - 50))));
+            game.SpawnEnemy(Heavy.Create(new Vector2(SpawnX, rng.RandfRange(30, Main.ScreenH - 50))));
         }
     }
 }
