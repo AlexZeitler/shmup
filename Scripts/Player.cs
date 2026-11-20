@@ -90,6 +90,7 @@ public partial class Player : Node2D
         if (fire && !_fireHeld)
         {
             game.SpawnBullet(Bullet.Shot(Position + new Vector2(14, 3)));
+            game.Audio.Play(Sounds.Shot);
             Charge = 0;
         }
         else if (fire && _fireHeld)
@@ -103,10 +104,12 @@ public partial class Player : Node2D
             {
                 var level = 1 + (Charge - ChargeMin) * 3 / (ChargeMax - ChargeMin + 1); // 1..3
                 game.SpawnBullet(Bullet.Beam(Position + new Vector2(14, 4), level));
+                game.Audio.Play(Sounds.Beam[level - 1]);
             }
             Charge = 0;
             _chargeFx.Emitting = false;
         }
         _fireHeld = fire;
+        game.Audio.Charge(Charge > ChargeMin ? (Charge - ChargeMin) / (float)(ChargeMax - ChargeMin) : null);
     }
 }

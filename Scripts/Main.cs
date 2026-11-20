@@ -18,6 +18,7 @@ public partial class Main : Node2D
 
     public Player Player { get; private set; } = null!;
     public Terrain Terrain { get; private set; } = null!;
+    public Audio Audio { get; private set; } = null!;
     public int Score { get; private set; }
     public int HiScore { get; private set; }
     public int Lives { get; private set; }
@@ -39,6 +40,8 @@ public partial class Main : Node2D
         _world = new Node2D { Name = "World" };
         AddChild(_world);
         AddChild(new Hud { Name = "Hud" });
+        Audio = new Audio { Name = "Audio" };
+        AddChild(Audio);
         Reset();
     }
 
@@ -58,6 +61,7 @@ public partial class Main : Node2D
         Terrain.Reset(RunSeed);
         _spawner.Reset();
         CurrentState = State.Play;
+        Audio.StartMusic();
     }
 
     public override void _PhysicsProcess(double delta)
@@ -70,7 +74,10 @@ public partial class Main : Node2D
         if (Input.IsActionJustPressed("fullscreen"))
             ToggleFullscreen();
         if (Input.IsActionJustPressed("pause") && CurrentState == State.Play)
+        {
             Paused = !Paused;
+            Audio.SetPaused(Paused);
+        }
         if (Paused)
             return;
 
@@ -131,6 +138,11 @@ public partial class Main : Node2D
                 {
                     Score += e.Points;
                     Explode(e.Rect.GetCenter(), Sprites.ExplosionSmall);
+                    Audio.Play(Sounds.ExplosionSmall);
+                }
+                else
+                {
+                    Audio.Play(Sounds.Hit);
                 }
                 if (!b.Pierce)
                 {
@@ -176,6 +188,7 @@ public partial class Main : Node2D
     {
         var center = Player.Position + new Vector2(8, 4);
         Explode(center, Sprites.ExplosionLarge);
+        Audio.Play(Sounds.ExplosionLarge);
         Lives--;
 
         if (Lives <= 0)
@@ -183,6 +196,7 @@ public partial class Main : Node2D
             CurrentState = State.Over;
             HiScore = Mathf.Max(HiScore, Score);
             Player.Visible = false;
+            Audio.GameOver();
             return;
         }
         Rewind();
