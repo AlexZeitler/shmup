@@ -1,6 +1,6 @@
 # Shmup
 
-![Gameplay: the ship fires shots and a charged beam at drone formations, chasers and heavy enemies](docs/gameplay.gif)
+![Gameplay: the ship flies through a scrolling cave and fires at drone formations, chasers and heavy enemies](docs/gameplay.gif)
 
 A horizontally scrolling shooter in the spirit of R-Type and Katakis, built with Godot 4.7 (.NET) and C#.
 All game logic lives in C#. `Main.tscn` is the only scene; everything else is created at runtime.
