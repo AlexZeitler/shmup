@@ -12,11 +12,12 @@ public partial class Main : Node2D
     public const int ScreenW = 320;
     public const int ScreenH = 180;
     public const int StartingLives = 3;
+    public const ulong RunSeed = 1985;
 
     public enum State { Play, Over }
 
-    public RandomNumberGenerator Rng { get; } = new() { Seed = 1985 };
     public Player Player { get; private set; } = null!;
+    public Terrain Terrain { get; private set; } = null!;
     public int Score { get; private set; }
     public int HiScore { get; private set; }
     public int Lives { get; private set; }
@@ -33,6 +34,8 @@ public partial class Main : Node2D
     {
         RenderingServer.SetDefaultClearColor(Palette.Background);
         AddChild(new Starfield { Name = "Starfield" });
+        Terrain = new Terrain { Name = "Terrain" };
+        AddChild(Terrain);
         _world = new Node2D { Name = "World" };
         AddChild(_world);
         AddChild(new Hud { Name = "Hud" });
@@ -52,6 +55,7 @@ public partial class Main : Node2D
         Lives = StartingLives;
         Score = 0;
         Tick = 0;
+        Terrain.Reset(RunSeed);
         _spawner.Reset();
         CurrentState = State.Play;
     }
@@ -78,6 +82,7 @@ public partial class Main : Node2D
         }
 
         Tick++;
+        Terrain.Step();
         Player.Step(this);
         _spawner.Step(this);
         foreach (var e in _enemies) e.Step(this);
@@ -107,6 +112,11 @@ public partial class Main : Node2D
 
     private void Collide()
     {
+        // All shots end at the rock, the beam and enemy shots included.
+        foreach (var b in _bullets)
+            if (!b.Dead && Terrain.Overlaps(b.Rect))
+                b.Dead = true;
+
         foreach (var b in _bullets)
         {
             if (b.Dead || b.IsEnemy) continue;
@@ -136,24 +146,27 @@ public partial class Main : Node2D
             }
         }
 
-        if (Player.Invulnerable) return;
-
+        // The rock kills even while invulnerable; otherwise the ship could pass
+        // through walls after a respawn. The respawn point is always open.
         var hitbox = Player.Hitbox;
-        var hit = false;
-        foreach (var b in _bullets)
+        var hit = Terrain.Overlaps(hitbox);
+        if (!Player.Invulnerable)
         {
-            if (b.IsEnemy && !b.Dead && b.Rect.Intersects(hitbox))
+            foreach (var b in _bullets)
             {
-                b.Dead = true;
-                hit = true;
+                if (b.IsEnemy && !b.Dead && b.Rect.Intersects(hitbox))
+                {
+                    b.Dead = true;
+                    hit = true;
+                }
             }
-        }
-        foreach (var e in _enemies)
-        {
-            if (!e.Dead && e.Rect.Intersects(hitbox))
+            foreach (var e in _enemies)
             {
-                if (e.DiesOnRam) e.Dead = true;
-                hit = true;
+                if (!e.Dead && e.Rect.Intersects(hitbox))
+                {
+                    if (e.DiesOnRam) e.Dead = true;
+                    hit = true;
+                }
             }
         }
         if (hit) PlayerHit();
@@ -172,6 +185,16 @@ public partial class Main : Node2D
             Player.Visible = false;
             return;
         }
+        Rewind();
+    }
+
+    /// <summary>Back to the start of the current section, which looks exactly as before.</summary>
+    private void Rewind()
+    {
+        Terrain.RewindTo(Terrain.SectionAt(Player.Position.X));
+        foreach (var e in _enemies) e.Dead = true;
+        foreach (var b in _bullets) b.Dead = true;
+        _spawner.Reset();
         Player.Respawn();
     }
 
