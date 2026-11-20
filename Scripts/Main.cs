@@ -85,7 +85,7 @@ public partial class Main : Node2D
 
         if (CurrentState == State.Over)
         {
-            if (Input.IsActionJustPressed("restart") || Input.IsActionJustPressed("fire"))
+            if (Input.IsActionJustPressed("restart"))
                 Reset();
             return;
         }
