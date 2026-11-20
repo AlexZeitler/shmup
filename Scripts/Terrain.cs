@@ -16,6 +16,10 @@ public partial class Terrain : Node2D
     public const int SectionColumns = 38; // 304 px, about 10 seconds
     public const float ScrollSpeed = 0.5f;
 
+    /// <summary>In this section the cave opens into the arena of the boss and the scrolling stops.</summary>
+    public const int ArenaSection = 12;
+    private const int ArenaScrollPx = ArenaSection * SectionColumns * Tile;
+
     private const int VisibleColumns = Main.ScreenW / Tile + 1;
     private const int OpenCeiling = 1;
     private const int OpenFloor = 2;
@@ -23,6 +27,8 @@ public partial class Terrain : Node2D
     private const int MaxCeiling = 7;
     private const int MaxFloor = 8;
     private const int MinGap = 6; // rows
+    // Ceiling and floor move one row per column, so they start opening before the arena.
+    private const int ArenaRunUp = MaxFloor + 2; // columns
 
     /// <summary>Columns of a section plus the walker state it ends with.</summary>
     private sealed class Section
@@ -42,6 +48,9 @@ public partial class Terrain : Node2D
 
     /// <summary>Scroll position in whole pixels; drawing and collisions both use it.</summary>
     public int ScrollPx => (int)_scroll;
+
+    /// <summary>The start of the arena has reached the left edge; the scrolling has stopped.</summary>
+    public bool InArena => ScrollPx >= ArenaScrollPx;
 
     public override void _Ready()
     {
@@ -80,7 +89,7 @@ public partial class Terrain : Node2D
 
     public void Step()
     {
-        _scroll += ScrollSpeed;
+        _scroll = Mathf.Min(_scroll + ScrollSpeed, ArenaScrollPx);
         UpdateTiles();
     }
 
@@ -199,7 +208,13 @@ public partial class Terrain : Node2D
 
         for (var col = 0; col < SectionColumns; col++)
         {
-            if (--hold <= 0)
+            if (index * SectionColumns + col >= ArenaSection * SectionColumns - ArenaRunUp)
+            {
+                // From here on the cave stays open: the arena and everything right of it.
+                targetCeiling = OpenCeiling;
+                targetFloor = OpenFloor;
+            }
+            else if (--hold <= 0)
             {
                 hold = rng.RandiRange(6, 18);
                 targetCeiling = rng.RandiRange(OpenCeiling, MaxCeiling);

@@ -20,6 +20,10 @@ public static class Sprites
     public static readonly Texture2D Drone = Load("drone");
     public static readonly Texture2D Chaser = Load("chaser");
     public static readonly Texture2D Heavy = Load("heavy");
+    public static readonly Texture2D BossHull = Load("boss_hull");
+    public static readonly Texture2D BossTurret = Load("boss_turret");
+    public static readonly Texture2D BossCoreClosed = Load("boss_core_closed");
+    public static readonly Texture2D BossCoreOpen = Load("boss_core_open");
     public static readonly Texture2D Shot = Load("shot");
     public static readonly Texture2D EnemyShot = Load("enemy_shot");
     public static readonly Texture2D[] Beam = { Load("beam1"), Load("beam2"), Load("beam3") };
