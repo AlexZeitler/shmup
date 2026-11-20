@@ -1,6 +1,6 @@
 # Shmup
 
-![Gameplay: the ship fires a row of shots at a heavy enemy and a drone formation](docs/screenshot.png)
+![Gameplay: the ship fires shots and a charged beam at drone formations, chasers and heavy enemies](docs/gameplay.gif)
 
 A horizontally scrolling shooter in the spirit of R-Type and Katakis, built with Godot 4.7 (.NET) and C#.
 All game logic lives in C#. `Main.tscn` is the only scene; everything else is created at runtime.
@@ -45,7 +45,7 @@ Project → Project Settings → Input Map.
 | `Scripts/Enemies.cs` | `Enemy` base class plus `Drone`, `Chaser` and `Heavy` |
 | `Scripts/Bullet.cs` | Shot, beam (piercing, hits each enemy once), aimed enemy shots |
 | `Scripts/WaveSpawner.cs` | Random waves as a placeholder until real levels exist |
-| `Scripts/Graphics.cs` | Palette, ASCII pixel sprites, explosions via `CpuParticles2D` |
+| `Scripts/Graphics.cs` | Palette, loading the PNG sprites from `Sprites/`, frame-based explosions |
 | `Scripts/Starfield.cs`, `Scripts/Hud.cs` | Parallax stars, HUD with a 3×5 pixel font |
 
 Technical notes:
