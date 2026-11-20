@@ -100,8 +100,8 @@ public partial class Main : Node2D
         _world.AddChild(e);
     }
 
-    public void Explode(Vector2 at, Color color, int amount) =>
-        _world.AddChild(Effects.Explosion(at, color, amount));
+    public void Explode(Vector2 at, SpriteFrames frames) =>
+        _world.AddChild(Effects.Explosion(at, frames));
 
     // ------------------------------------------------------------ Collisions
 
@@ -120,7 +120,7 @@ public partial class Main : Node2D
                 if (e.Dead)
                 {
                     Score += e.Points;
-                    Explode(e.Rect.GetCenter(), e.Tint, 18);
+                    Explode(e.Rect.GetCenter(), Sprites.ExplosionSmall);
                 }
                 if (!b.Pierce)
                 {
@@ -162,8 +162,7 @@ public partial class Main : Node2D
     private void PlayerHit()
     {
         var center = Player.Position + new Vector2(8, 4);
-        Explode(center, Palette.Hull, 40);
-        Explode(center, Palette.Flame, 25);
+        Explode(center, Sprites.ExplosionLarge);
         Lives--;
 
         if (Lives <= 0)

@@ -7,7 +7,6 @@ public partial class Enemy : Node2D
 {
     public int Hp = 1;
     public int Points = 100;
-    public Color Tint = Palette.EnemyA;
     public bool DiesOnRam = true;
     public bool Dead;
 
@@ -15,11 +14,15 @@ public partial class Enemy : Node2D
     protected Sprite2D Sprite = null!;
     private int _flash;
 
-    public Rect2 Rect => new(Position, Sprite.Texture.GetSize());
+    public Rect2 Rect => new(Position, _size);
 
-    protected void Init(Texture2D texture, Vector2 at)
+    private Vector2 _size;
+
+    /// <summary>The hitbox keeps the given size, the sprite is drawn larger and centred on it.</summary>
+    protected void Init(Texture2D texture, Vector2 hitbox, Vector2 at)
     {
-        Sprite = new Sprite2D { Texture = texture, Centered = false };
+        _size = hitbox;
+        Sprite = Sprites.Around(texture, hitbox);
         AddChild(Sprite);
         Position = at;
     }
@@ -37,7 +40,7 @@ public partial class Enemy : Node2D
         if (_flash > 0) _flash--;
         Sprite.Modulate = _flash > 0 ? new Color(3, 3, 3) : Colors.White;
         Move(game);
-        if (Position.X < -20) Dead = true;
+        if (Position.X < -30) Dead = true;
     }
 
     protected virtual void Move(Main game) { }
@@ -51,8 +54,8 @@ public partial class Drone : Enemy
 
     public static Drone Create(Vector2 at, float phase)
     {
-        var d = new Drone { _baseY = at.Y, _phase = phase, Points = 100, Tint = Palette.EnemyA };
-        d.Init(Sprites.Drone, at);
+        var d = new Drone { _baseY = at.Y, _phase = phase, Points = 100 };
+        d.Init(Sprites.Drone, new Vector2(8, 6), at);
         return d;
     }
 
@@ -65,8 +68,8 @@ public partial class Chaser : Enemy
 {
     public static Chaser Create(Vector2 at)
     {
-        var c = new Chaser { Points = 150, Tint = Palette.EnemyC };
-        c.Init(Sprites.Chaser, at);
+        var c = new Chaser { Points = 150 };
+        c.Init(Sprites.Chaser, new Vector2(8, 6), at);
         return c;
     }
 
@@ -87,8 +90,8 @@ public partial class Heavy : Enemy
 
     public static Heavy Create(Vector2 at)
     {
-        var h = new Heavy { _baseY = at.Y, Hp = 8, Points = 500, Tint = Palette.EnemyB, DiesOnRam = false };
-        h.Init(Sprites.Heavy, at);
+        var h = new Heavy { _baseY = at.Y, Hp = 8, Points = 500, DiesOnRam = false };
+        h.Init(Sprites.Heavy, new Vector2(14, 8), at);
         return h;
     }
 

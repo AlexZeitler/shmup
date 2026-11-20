@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using Godot;
 
 namespace Shmup;
@@ -8,72 +7,48 @@ public static class Palette
     public static readonly Color Background = Color.Color8(8, 6, 20);
     public static readonly Color Hull = Color.Color8(170, 190, 220);
     public static readonly Color HullDark = Color.Color8(90, 100, 140);
-    public static readonly Color Canopy = Color.Color8(90, 220, 255);
     public static readonly Color Flame = Color.Color8(255, 150, 40);
-    public static readonly Color EnemyA = Color.Color8(220, 80, 120);
-    public static readonly Color EnemyB = Color.Color8(140, 220, 90);
-    public static readonly Color EnemyC = Color.Color8(240, 200, 70);
     public static readonly Color White = Color.Color8(255, 255, 255);
-    public static readonly Color Shot = Color.Color8(255, 240, 140);
     public static readonly Color Beam = Color.Color8(120, 200, 255);
-    public static readonly Color EnemyShot = Color.Color8(255, 90, 60);
 }
 
-/// <summary>Pixel art from ASCII – can be replaced by real sprites later.</summary>
+/// <summary>PNG sprites from res://Sprites.</summary>
 public static class Sprites
 {
-    public static readonly Texture2D Player = Make(new[]
-    {
-        "...dd...........",
-        "..dhhh..........",
-        "f.dhhhhhh.......",
-        "ffhhhhhcchhh....",
-        "ffhhhhhhhhhhhhh.",
-        "f.dhhhhhhhhh....",
-        "..dhhh..........",
-        "...dd...........",
-    }, new() { ['h'] = Palette.Hull, ['d'] = Palette.HullDark, ['c'] = Palette.Canopy, ['f'] = Palette.Flame });
+    public static readonly Texture2D Player = Load("player");
+    public static readonly Texture2D Life = Load("life");
+    public static readonly Texture2D Drone = Load("drone");
+    public static readonly Texture2D Chaser = Load("chaser");
+    public static readonly Texture2D Heavy = Load("heavy");
+    public static readonly Texture2D Shot = Load("shot");
+    public static readonly Texture2D EnemyShot = Load("enemy_shot");
+    public static readonly Texture2D[] Beam = { Load("beam1"), Load("beam2"), Load("beam3") };
+    public static readonly SpriteFrames ExplosionSmall = Frames("explosion_small", 32);
+    public static readonly SpriteFrames ExplosionLarge = Frames("explosion_large", 48);
 
-    public static readonly Texture2D Drone = Make(new[]
+    /// <summary>
+    /// Sprite drawn centred on a hitbox whose top-left corner is the parent's origin.
+    /// The graphics are larger than the hitboxes, so the hitboxes keep their old sizes.
+    /// </summary>
+    public static Sprite2D Around(Texture2D texture, Vector2 hitbox) => new()
     {
-        "...aaaa.",
-        ".aaaaaaa",
-        "aaeeaaa.",
-        "aaeeaaaa",
-        ".aaaaaaa",
-        "...aaaa.",
-    }, new() { ['a'] = Palette.EnemyA, ['e'] = Palette.White });
+        Texture = texture,
+        Centered = false,
+        Position = ((hitbox - texture.GetSize()) / 2).Floor(),
+    };
 
-    public static readonly Texture2D Heavy = Make(new[]
-    {
-        "....bbbbbb....",
-        "..bbbbbbbbbb..",
-        ".bbbbeeeebbbbb",
-        "bbbbeeeeeebbbb",
-        "bbbbeeeeeebbbb",
-        ".bbbbeeeebbbbb",
-        "..bbbbbbbbbb..",
-        "....bbbbbb....",
-    }, new() { ['b'] = Palette.EnemyB, ['e'] = Palette.White });
+    private static Texture2D Load(string name) => GD.Load<Texture2D>($"res://Sprites/{name}.png");
 
-    public static readonly Texture2D Chaser = Make(new[]
+    /// <summary>Horizontal sheet of square frames.</summary>
+    private static SpriteFrames Frames(string name, int size)
     {
-        "..cc....",
-        ".cccc...",
-        "ccccccc.",
-        "ecccccc.",
-        ".cccc...",
-        "..cc....",
-    }, new() { ['c'] = Palette.EnemyC, ['e'] = Palette.White });
-
-    private static Texture2D Make(string[] rows, Dictionary<char, Color> palette)
-    {
-        var img = Image.CreateEmpty(rows[0].Length, rows.Length, false, Image.Format.Rgba8);
-        for (var y = 0; y < rows.Length; y++)
-            for (var x = 0; x < rows[y].Length; x++)
-                if (palette.TryGetValue(rows[y][x], out var c))
-                    img.SetPixel(x, y, c);
-        return ImageTexture.CreateFromImage(img);
+        var sheet = Load(name);
+        var frames = new SpriteFrames();
+        frames.SetAnimationLoop("default", false);
+        frames.SetAnimationSpeed("default", 14);
+        for (var x = 0; x < sheet.GetWidth(); x += size)
+            frames.AddFrame("default", new AtlasTexture { Atlas = sheet, Region = new Rect2(x, 0, size, size) });
+        return frames;
     }
 }
 
@@ -87,25 +62,11 @@ public static class Effects
         return g;
     }
 
-    public static CpuParticles2D Explosion(Vector2 at, Color color, int amount)
+    public static AnimatedSprite2D Explosion(Vector2 at, SpriteFrames frames)
     {
-        var p = new CpuParticles2D
-        {
-            Position = at,
-            Amount = amount,
-            OneShot = true,
-            Explosiveness = 1,
-            Lifetime = 0.6,
-            Spread = 180,
-            Gravity = Vector2.Zero,
-            InitialVelocityMin = 30,
-            InitialVelocityMax = 120,
-            DampingMin = 60,
-            DampingMax = 120,
-            ColorRamp = Fade(color),
-            Emitting = true,
-        };
-        p.Finished += p.QueueFree;
-        return p;
+        var sprite = new AnimatedSprite2D { Position = at, SpriteFrames = frames };
+        sprite.AnimationFinished += sprite.QueueFree;
+        sprite.Play();
+        return sprite;
     }
 }

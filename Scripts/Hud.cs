@@ -28,9 +28,8 @@ public partial class Hud : Node2D
         DrawRect(new Rect2(bx, y, bw * charge / Player.ChargeMax, 5), full ? Palette.White : Palette.Beam);
         DrawRect(new Rect2(bx + bw * Player.ChargeMin / Player.ChargeMax, y - 1, 1, 7), Palette.Hull);
 
-        var icon = Sprites.Player.GetSize() * 0.6f;
         for (var i = 0; i < game.Lives; i++)
-            DrawTextureRect(Sprites.Player, new Rect2(new Vector2(w - 14 - i * 12, y - 1), icon), false);
+            DrawTexture(Sprites.Life, new Vector2(w - 14 - i * 12, y));
 
         if (game.Paused)
             Centered("PAUSE", h / 2f - 5, 2);
