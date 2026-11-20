@@ -18,12 +18,18 @@ public partial class Enemy : Node2D
 
     public Rect2 Rect => new(Position, _size);
 
-    /// <summary>Area the sprite covers on screen; larger than the hitbox.</summary>
+    /// <summary>Area the sprite covers on screen, its outline included.</summary>
     public Rect2 SpriteRect => new(Position + Sprite.Position, Sprite.Texture.GetSize());
 
     private Vector2 _size;
 
-    /// <summary>The hitbox keeps the given size, the sprite is drawn larger and centred on it.</summary>
+    /// <summary>
+    /// The hitbox covers the sprite without its one-pixel outline, so a shot
+    /// that touches the visible ship hits it.
+    /// </summary>
+    protected void Init(Texture2D texture, Vector2 at) => Init(texture, texture.GetSize() - new Vector2(2, 2), at);
+
+    /// <summary>The sprite is drawn centred on the given hitbox.</summary>
     protected void Init(Texture2D texture, Vector2 hitbox, Vector2 at)
     {
         _size = hitbox;
@@ -75,7 +81,7 @@ public partial class Drone : Enemy
     public static Drone Create(Vector2 at, float phase)
     {
         var d = new Drone { _baseY = at.Y, _phase = phase, Points = 100 };
-        d.Init(Sprites.Drone, new Vector2(8, 6), at);
+        d.Init(Sprites.Drone, at);
         return d;
     }
 
@@ -89,7 +95,7 @@ public partial class Chaser : Enemy
     public static Chaser Create(Vector2 at)
     {
         var c = new Chaser { Points = 150 };
-        c.Init(Sprites.Chaser, new Vector2(8, 6), at);
+        c.Init(Sprites.Chaser, at);
         return c;
     }
 
@@ -111,7 +117,7 @@ public partial class Heavy : Enemy
     public static Heavy Create(Vector2 at)
     {
         var h = new Heavy { _baseY = at.Y, Hp = 8, Points = 500, DiesOnRam = false };
-        h.Init(Sprites.Heavy, new Vector2(14, 8), at);
+        h.Init(Sprites.Heavy, at);
         return h;
     }
 
@@ -124,7 +130,7 @@ public partial class Heavy : Enemy
         {
             _fireCooldown = 70;
             game.SpawnBullet(Bullet.Aimed(
-                Position + new Vector2(3, 4),
+                Position + new Vector2(9, 7),
                 game.Player.Position + new Vector2(8, 4),
                 1.6f));
         }

@@ -126,6 +126,7 @@ public partial class BossPart : Enemy
     public static BossPart Hull()
     {
         var hull = new BossPart { Armored = true, DiesOnRam = false, Points = 0 };
+        // Smaller than the sprite: the pointed front leaves its corners empty.
         hull.Init(Sprites.BossHull, new Vector2(48, 84), Vector2.Zero);
         return hull;
     }
@@ -133,7 +134,7 @@ public partial class BossPart : Enemy
     public static BossPart Turret(int hp)
     {
         var turret = new BossPart { Hp = hp, _maxHp = hp, _warnWhenLow = true, DiesOnRam = false, Points = 0, ZIndex = 1 };
-        turret.Init(Sprites.BossTurret, new Vector2(16, 10), Vector2.Zero);
+        turret.Init(Sprites.BossTurret, Vector2.Zero);
         return turret;
     }
 
@@ -144,7 +145,7 @@ public partial class BossPart : Enemy
         {
             Hp = hp, _maxHp = hp, _warnWhenLow = true, Armored = true, DiesOnRam = false, Points = 0, ZIndex = 1,
         };
-        core.Init(Sprites.BossCoreClosed, new Vector2(14, 14), Vector2.Zero);
+        core.Init(Sprites.BossCoreClosed, Vector2.Zero);
         return core;
     }
 
